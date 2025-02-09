@@ -52,6 +52,8 @@ void APickup::InitializeDrop(UItemBase* ItemToDrop, const int32 InQuantity)
 	ItemRef = ItemToDrop;
 	InQuantity <= 0 ? ItemRef->SetQuantity(1) : ItemRef->SetQuantity(InQuantity);
 	ItemRef->NumericData.Weight = ItemToDrop->GetItemSinleWeight();
+
+	UpdateInteractableData();
 }
 
 void APickup::BeginFocus()
