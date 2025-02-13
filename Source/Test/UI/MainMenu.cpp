@@ -3,6 +3,8 @@
 
 #include "UI/MainMenu.h"
 #include "Character/TTCharacter.h"
+#include "Interfaces/ItemDragDropOperation.h"
+#include "Items/ItemBase.h"
 
 void UMainMenu::NativeOnInitialized()
 {
@@ -18,6 +20,13 @@ void UMainMenu::NativeConstruct()
 
 bool UMainMenu::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	const UItemDragDropOperation* DropItem = Cast<UItemDragDropOperation>(InOperation);
+
+	if (PlayerCharacter && DropItem->SourceItem)
+	{
+		PlayerCharacter->DropItem(DropItem->SourceItem, DropItem->SourceItem->Quantity);
+		return true;
+	}
+	
 	return false;
 }

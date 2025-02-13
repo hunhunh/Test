@@ -10,6 +10,7 @@
 
 class ATTHUD;
 class UInventoryComponent;
+class UItemBase;
 
 USTRUCT()
 struct FInteractionData
@@ -134,4 +135,11 @@ protected:
 	TObjectPtr<class UInputAction> ToggleMenuAction;
 
 	void ToggleMenu();
+
+	
+	//Drop Item
+public:
+	void DropItem(UItemBase* ItemToDrop,int32 QuantityToDrop);
+
+
 };

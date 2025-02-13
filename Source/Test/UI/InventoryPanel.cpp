@@ -45,13 +45,18 @@ void UInventoryPanel::RefreshInventory()
 
 void UInventoryPanel::SetInfoText() const
 {
-	WeightInfo->SetText(FText::Format(FText::FromString("{0}/{1}"),
-		InventoryRef->GetInventoryTotalWeight(),
-		InventoryRef->GetWeightCapacity()));
+	const FString WeightInfoValue{
+		FString::SanitizeFloat(InventoryRef->GetInventoryTotalWeight()) + "/" +
+		FString::SanitizeFloat(InventoryRef->GetWeightCapacity())
+	};
 
-	CapacityInfo->SetText(FText::Format(FText::FromString("{0}/{1}"),
-		InventoryRef->GetInventoryContents().Num(),
-		InventoryRef->GetSlotsCapacity()));
+	const FString CapacityInfoValue{
+		FString::FromInt(InventoryRef->GetInventoryContents().Num()) + "/" +
+		FString::FromInt(InventoryRef->GetSlotsCapacity())
+	};
+
+	WeightInfo->SetText(FText::FromString(WeightInfoValue));
+	CapacityInfo->SetText(FText::FromString(CapacityInfoValue));
 }
 
 bool UInventoryPanel::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

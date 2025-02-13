@@ -12,17 +12,17 @@ void UInventoryTooltip::NativeConstruct()
 
 	if (const UItemBase* ItemBeingHovered = InventorySlotBeingHovered->GetItemRef())
 	{
-		/*switch (ItemBeingHovered->ItemQuality)
+		switch (ItemBeingHovered->ItemQuality)
 		{
 		case EItemQuality::Shoddy:
 			ItemType->SetColorAndOpacity(FLinearColor::Gray);
 			break;
 		case EItemQuality::Common:
-			ItemType->SetColorAndOpacity(FLinearColor::White);
+			ItemType->SetColorAndOpacity(FLinearColor::Blue);
 			break;
 
 		default:;
-		}*/
+		}
 
 		switch (ItemBeingHovered->ItemType)
 		{
@@ -46,19 +46,11 @@ void UInventoryTooltip::NativeConstruct()
 		ArmorRating->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.ArmorRating));
 		UsageText->SetText(ItemBeingHovered->TextData.UsageText);
 		ItemDescription->SetText(ItemBeingHovered->TextData.Description);
-		StackWeight->SetText(FText::AsNumber(ItemBeingHovered->GetItemStackWeight()));
-
-		if (ItemBeingHovered->NumericData.bIsStackable)
-		{
-			MaxStackSize->SetText(FText::AsNumber(ItemBeingHovered->NumericData.MaxStackSize));
-		}
-		else
-		{
-			MaxStackSize->SetVisibility(ESlateVisibility::Collapsed);
-		}
+		//StackWeight->SetText(FText::AsNumber(ItemBeingHovered->GetItemStackWeight()));
 
 
-		/*const FString WeightInfo =
+
+		const FString WeightInfo =
 		{ "Weight: " + FString::SanitizeFloat(ItemBeingHovered->GetItemStackWeight()) };
 
 		StackWeight->SetText(FText::FromString(WeightInfo));
@@ -73,7 +65,7 @@ void UInventoryTooltip::NativeConstruct()
 		else
 		{
 			MaxStackSize->SetVisibility(ESlateVisibility::Collapsed);
-		}*/
+		}
 	}
 
 

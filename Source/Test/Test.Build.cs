@@ -10,7 +10,7 @@ public class Test : ModuleRules
 
         PublicIncludePaths.AddRange(new string[] { "Test" });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "SlateCore", "Slate", "UMG" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "SlateCore", "Slate", "UMG"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

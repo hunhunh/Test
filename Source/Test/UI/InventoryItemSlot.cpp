@@ -7,6 +7,8 @@
 #include "Components/Border.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "UI/DragItemVisual.h"
+#include "Interfaces/ItemDragDropOperation.h"
 
 void UInventoryItemSlot::NativeOnInitialized()
 {
@@ -33,7 +35,7 @@ void UInventoryItemSlot::NativeConstruct()
 			break;
 
 		case EItemQuality::Common :
-			ItemBorder->SetBrushColor(FLinearColor::White);
+			ItemBorder->SetBrushColor(FLinearColor::Blue);
 			break;
 
 		default:
@@ -55,7 +57,16 @@ void UInventoryItemSlot::NativeConstruct()
 
 FReply UInventoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	FReply Reply= Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+	}
+
+	//오른쪽 클릭 시 하위 메뉴
+
+	return Reply.Unhandled();
 }
 
 void UInventoryItemSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -66,6 +77,24 @@ void UInventoryItemSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 void UInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	if (DragItemVisualClass)
+	{
+		const TObjectPtr<UDragItemVisual> DragVisual = CreateWidget<UDragItemVisual>(this, DragItemVisualClass);
+	
+		DragVisual->ItemIcon->SetBrushFromTexture(ItemRef->AssetData.Icon);
+		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
+		DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemRef->Quantity));
+	
+		UItemDragDropOperation* DragItem = NewObject<UItemDragDropOperation>();
+		DragItem->SourceItem = ItemRef;
+		DragItem->SourceInventory = ItemRef->OwningInventory;
+
+		DragItem->DefaultDragVisual = DragVisual;
+		DragItem->Pivot = EDragPivot::TopLeft;
+
+		OutOperation = DragItem;
+	}
 }
 
 bool UInventoryItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

@@ -12,6 +12,7 @@
 #include "DrawDebugHelpers.h"
 #include "UI/TTHUD.h"
 #include "Components/InventoryComponent.h"
+#include "World/Pickup.h"
 
 // Sets default values
 ATTCharacter::ATTCharacter()
@@ -313,5 +314,30 @@ void ATTCharacter::UpdateInteractionWidget() const
 void ATTCharacter::ToggleMenu()
 {
 	HUD->ToggleMenu();
+}
+
+void ATTCharacter::DropItem(UItemBase* ItemToDrop, int32 QuantityToDrop)
+{
+	if (PlayerInventory->FindMatchingItem(ItemToDrop))
+	{
+		FActorSpawnParameters SpawnParms;
+		SpawnParms.Owner = this;
+		SpawnParms.bNoFail = true;
+		SpawnParms.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		
+		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() * 50.0f) };
+		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+
+		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
+
+		APickup* Pickup = GetWorld()->SpawnActor<APickup>(APickup::StaticClass(), SpawnTransform, SpawnParms);
+
+		Pickup->InitializeDrop(ItemToDrop, RemovedQuantity);
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item to drop was somehow null."));
+	}
 }
 
