@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "UI/InventoryItemSlot.h"
 #include "Components/WrapBox.h"
+#include <Interfaces/ItemDragDropOperation.h>
 
 void UInventoryPanel::NativeOnInitialized()
 {
@@ -61,5 +62,15 @@ void UInventoryPanel::SetInfoText() const
 
 bool UInventoryPanel::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	const UItemDragDropOperation* ItemDragDrop = Cast<UItemDragDropOperation>(InOperation);
+
+	// 유효한 아이템 데이터가 있고, 인벤토리 참조가 존재하는지 확인
+	if (ItemDragDrop->SourceItem && InventoryRef)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Detected an item drop on InventoryPanel."))
+
+		return true;
+	}
+
+	return false;
 }

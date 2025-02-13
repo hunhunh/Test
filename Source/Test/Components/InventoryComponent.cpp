@@ -173,6 +173,98 @@ FItemAddResult UInventoryComponent::HandleNonStackableItems(UItemBase* ItemIn)
 
 int32 UInventoryComponent::HandleStackableItems(UItemBase* ItemIn, int32 RequestedAddAmount)
 {
+	if (RequestedAddAmount <= 0 || FMath::IsNearlyZero(ItemIn->GetItemStackWeight()))
+	{
+		return 0;
+	}
+
+	//추가할 아이템 개수
+	int32 AmountToDistribute = RequestedAddAmount;
+
+	//기존 스택을 찾아서 추가할 수 있는지 확인
+	UItemBase* ExistingItemStack = FindNextPartialStact(ItemIn);
+
+	//기존 스텍이 있으면 최대한 채우기
+	while (ExistingItemStack)
+	{
+		//해당 스텍을 꽉 채우려면 얼마나 더 필요한지 계산
+		const int32 AmountToMakeFullStack = CalculateNumberForFullStack(ExistingItemStack, AmountToDistribute);
+
+		//무게 제한을 고려하여 추가 가능한 개수를 계산
+		const int32 WeightLimitAddAmount = CalculateWeightAddAmount(ExistingItemStack, AmountToMakeFullStack);
+
+		//인벤토리 무게 제한을 초과하지 않으면 추가 가능
+		if (WeightLimitAddAmount > 0)
+		{
+			//기존 스텍의 개수 증가
+			ExistingItemStack->SetQuantity(ExistingItemStack->Quantity + WeightLimitAddAmount);
+
+			//총 무게 업데이트
+			InventoryTotalWeight += (ExistingItemStack->GetItemSinleWeight() * WeightLimitAddAmount);
+
+			//남은 아이템 개수 업데이트
+			AmountToDistribute -= WeightLimitAddAmount;
+			ItemIn->SetQuantity(AmountToDistribute);
+
+			//만약 무게 제한을 초과할 경우 추가 작업 중단
+			if (InventoryTotalWeight + ExistingItemStack->GetItemSinleWeight() > InventoryWeightCapacity)
+			{
+				OnInventoryUpdated.Broadcast();
+				return RequestedAddAmount - AmountToDistribute;
+			}
+		}
+		else if (WeightLimitAddAmount <= 0)
+		{
+			// 일부만 추가했거나, 아예 추가할 수 없는 경우 처리
+			if (AmountToDistribute != RequestedAddAmount)
+			{
+				OnInventoryUpdated.Broadcast();
+				return RequestedAddAmount - AmountToDistribute;
+			}
+
+			// 추가 불가능한 경우 (무게 초과)
+			return 0;
+		}
+		// 모든 아이템을 추가했으면 종료
+		if (AmountToDistribute <= 0)
+		{
+			OnInventoryUpdated.Broadcast();
+			return RequestedAddAmount;
+		}
+
+		// 추가로 동일한 아이템 스택이 있는지 확인
+		ExistingItemStack = FindNextPartialStact(ItemIn);
+	}
+	
+	//새로운 스택 생성 가능 여부 확인
+	if (InventoryContents.Num() + 1 <= InventorySlotsCapacity)
+	{
+		// 새 슬롯에 추가 가능한 개수를 무게 제한에 맞게 계산
+		const int32 WeightLimitAddAmount = CalculateWeightAddAmount(ItemIn, AmountToDistribute);
+
+		if (WeightLimitAddAmount > 0)
+		{
+			// 일부만 추가할 경우, 남은 개수 조정 후 새 스택 생성
+			if (WeightLimitAddAmount < AmountToDistribute)
+			{
+				AmountToDistribute -= WeightLimitAddAmount;
+				ItemIn->SetQuantity(AmountToDistribute);
+
+				// 아이템의 복사본을 생성하여 새로운 스택으로 추가
+				AddNewItem(ItemIn->CreateItemCopy(), WeightLimitAddAmount);
+				return RequestedAddAmount - AmountToDistribute;
+			}
+
+			// 전체를 추가할 경우
+			AddNewItem(ItemIn, AmountToDistribute);
+			return RequestedAddAmount;
+		}
+
+		// 빈 슬롯은 있지만 무게 초과로 추가할 수 없는 경우
+		return RequestedAddAmount - AmountToDistribute;
+	}
+
+	//인벤토리 슬롯이 가득 찼으면 추가 불가능
 	return 0;
 }
 

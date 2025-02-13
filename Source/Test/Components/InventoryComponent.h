@@ -145,11 +145,13 @@ protected:
 	//스텍이 불가능한 아이템 추가 처리
 	FItemAddResult HandleNonStackableItems(UItemBase* ItemIn);
 	
-	//스텍이 가능한 아이템 추가 처리
+	//인벤토리에 스택 가능한 아이템을 추가하는 기능
+	// (기존 스택이 있다면 최대한 기존 스택에 추가하고, 없거나 꽉 차 있다면 새로운 스택을 추가)
 	int32 HandleStackableItems(UItemBase* ItemIn, int32 RequestedAddAmount);
 	
 	//무게 제한에 맞춰 추가 가능한 개수 반환
 	int32 CalculateWeightAddAmount(UItemBase* ItemIn, int32 RequestedAddAmount);
+	// 주어진 아이템 스택(StackableItem)이 최대 스택 크기에 도달하려면 몇 개가 더 필요한지 계산
 	int32 CalculateNumberForFullStack(UItemBase* StackableItem, int32 InitialRequestedAddAmount);
 
 	void AddNewItem(UItemBase* Item, const int32 AmountToAdd);
