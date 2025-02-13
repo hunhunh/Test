@@ -9,6 +9,7 @@
 #include "TTCharacter.generated.h"
 
 class ATTHUD;
+class UInventoryComponent;
 
 USTRUCT()
 struct FInteractionData
@@ -80,7 +81,7 @@ protected:
 
 	//상호작용 키
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> InteractAction;
+	TObjectPtr<class UInputAction> InteractAction;
 
 	//상호작용 확인 빈도
 	float InteractionCheckFrequency;
@@ -115,4 +116,22 @@ protected:
 	UPROPERTY()
 	TObjectPtr<ATTHUD> HUD;
 
+	//Inventory
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
+	TObjectPtr<UInventoryComponent> PlayerInventory;
+
+public:
+	FORCEINLINE UInventoryComponent* GetInventory() const { return PlayerInventory; };
+
+	//InventoryWidget
+public:
+	void UpdateInteractionWidget() const;
+
+	//Input Inventory toggle menu
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ToggleMenuAction;
+
+	void ToggleMenu();
 };

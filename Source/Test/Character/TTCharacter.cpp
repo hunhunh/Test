@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "DrawDebugHelpers.h"
 #include "UI/TTHUD.h"
+#include "Components/InventoryComponent.h"
 
 // Sets default values
 ATTCharacter::ATTCharacter()
@@ -91,6 +92,19 @@ ATTCharacter::ATTCharacter()
 
 	InteractionCheckFrequency = 0.1;
 	InteractionCheckDistance = 225.0f;
+
+
+	//Inventory
+	PlayerInventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("PlayerInventory"));
+	PlayerInventory->SetSlotsCapacity(20);
+	PlayerInventory->SetWeightCapacity(50.0f);
+
+	//Input Inventory Menu
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionToggleRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_ToggleMenu.IA_ToggleMenu'"));
+	if (InputActionToggleRef.Object)
+	{
+		ToggleMenuAction = InputActionToggleRef.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -131,6 +145,8 @@ void ATTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATTCharacter::Look);
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ATTCharacter::BeginInteract);
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &ATTCharacter::EndInteract);
+
+	EnhancedInputComponent->BindAction(ToggleMenuAction, ETriggerEvent::Started, this, &ATTCharacter::ToggleMenu);
 }
 
 void ATTCharacter::Move(const FInputActionValue& Value)
@@ -241,7 +257,7 @@ void ATTCharacter::NoInteractableFound()
 
 void ATTCharacter::BeginInteract()
 {
-	UE_LOG(LogTemp, Warning, TEXT("F Started"));
+	//UE_LOG(LogTemp, Warning, TEXT("F Started"));
 
 	PerformInteractionCheck();
 
@@ -266,7 +282,7 @@ void ATTCharacter::BeginInteract()
 
 void ATTCharacter::EndInteract()
 {
-	UE_LOG(LogTemp, Warning, TEXT("F Ended"));
+	//UE_LOG(LogTemp, Warning, TEXT("F Ended"));
 
 	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
 
@@ -284,5 +300,18 @@ void ATTCharacter::Interact()
 	{
 		TargetInteractable->Interact(this);
 	}
+}
+
+void ATTCharacter::UpdateInteractionWidget() const
+{
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+	}
+}
+
+void ATTCharacter::ToggleMenu()
+{
+	HUD->ToggleMenu();
 }
 

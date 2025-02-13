@@ -7,6 +7,7 @@
 #include "Character/TTCharacter.h"
 #include "ItemBase.generated.h"
 
+class UInventoryComponent;
 /**
  * 
  */
@@ -16,6 +17,9 @@ class TEST_API UItemBase : public UObject
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY()
+	UInventoryComponent* OwningInventory;
+
 	UPROPERTY(VisibleAnywhere, Category = "Item")
 	int32 Quantity;
 
@@ -41,11 +45,15 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Item")
 	FItemAssetData AssetData;
 
+	bool bIsCopy;
+	bool bIsPickup;
 
 	//================================================
 	//FUNCTIONS
 	//================================================
 	UItemBase();
+
+	void ResetItemFlags();
 
 	UFUNCTION(Category = "Item")
 	UItemBase* CreateItemCopy();

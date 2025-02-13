@@ -33,7 +33,8 @@ public:
 	// **메뉴 UI 관련 함수**
 	// ==============================
 	void DisplayMenu();
-	void HideMunu();
+	void HideMenu();
+	void ToggleMenu();
 
 	// ==============================
 	// **상호작용 UI 관련 함수**
