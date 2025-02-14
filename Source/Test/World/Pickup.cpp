@@ -40,6 +40,7 @@ void APickup::InitializePickup(const TSubclassOf<UItemBase> BaseClass,const int3
 		ItemRef->TextData = ItemData->TextData;
 		ItemRef->AssetData = ItemData->AssetData;
 
+		ItemRef->NumericData.bIsStackable = ItemData->NumericData.MaxStackSize > 1;
 		InQuantity <= 0 ? ItemRef->SetQuantity(1) : ItemRef->SetQuantity(InQuantity);
 
 		PickupMesh->SetStaticMesh(ItemData->AssetData.Mesh);

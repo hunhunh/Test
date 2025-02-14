@@ -20,11 +20,13 @@ UItemBase* UItemBase::CreateItemCopy()
 
 	ItemCopy->ID = this->ID;
 	ItemCopy->Quantity = this->Quantity;
+	ItemCopy->ItemQuality = this->ItemQuality;
 	ItemCopy->ItemType = this->ItemType;
 	ItemCopy->TextData = this->TextData;
 	ItemCopy->NumericData = this->NumericData;
 	ItemCopy->ItemStatistics = this->ItemStatistics;
 	ItemCopy->AssetData = this->AssetData;
+
 	ItemCopy->bIsCopy=true;
 
 	return ItemCopy;
